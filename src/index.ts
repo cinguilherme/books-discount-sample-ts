@@ -2,19 +2,33 @@ export type Groups = Array<Set<number>>
 type BetterDiscont = (books: Array<number>) => number
 type GroupingFunction = (map: any) => Array<Groups>
 type Remainder = Array<any>
-type TotalDiscount = (groups: Groups) => number
-type DiscountCalculator = (group: Groups) => Array<number>
+type GroupBuilder = (base: Base) => Groups
+type TotalDiscount = (groups: Groups) => Array<DiscountedWithFinalPrice>
+type DiscountCalculator = (group: Groups) => Array<Discounted>
+
+interface Discounted {
+    set: Set<number>
+    discount: number
+}
+interface DiscountedWithFinalPrice {
+    set: Set<number>
+    discount: number
+    finalPrice: number
+}
 
 interface Base {
     base: Array<Array<number>>,
     remainder: Array<number>
 }
 
+const bookPrice = 800
+
 export const betterDiscontsForPurchase: BetterDiscont = (books) => {
     return [books].flatMap(fromListToMapOfFrequency)
         .flatMap(constructGroups)
         .map(calculateTotalDiscount)
-        .sort().reverse()[0]
+        .flatMap(d => d.reduce((acc, cur) => acc += cur.finalPrice, 0))
+        .reduce((acc, cur) => acc += cur, 0)
 }
 
 export const fromListToMapOfFrequency: (books: Array<number>) => Map<number, number> = (books) => {
@@ -31,7 +45,6 @@ export const constructGroups: GroupingFunction = (map) => {
         .map(buildGroupsWithRoundTrip)
 }
 
-type GroupBuilder = (base: Base) => Groups
 export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
     const group: Array<Set<number>> = base.base.map(arr => new Set(arr))
     let remainder = base.remainder
@@ -85,21 +98,27 @@ const discoutSwitch = (count: number) => {
     switch (count) {
         case 1: return 0
         case 2: return 0.05
-        case 3: return 0.1
-        case 4: return 0.15
-        case 5: return 0.20
+        case 3: return 0.10
+        case 4: return 0.20
+        case 5: return 0.25
         default: return 0.00
     }
 }
+
 export const calculateDiscountsForGroup: DiscountCalculator = (group) => {
-    return group.map(set => set.size)
-        .map(size => discoutSwitch(size))
+    return group.map(set => { return { set: set, discount: discoutSwitch(set.size) } })
 }
 
 export const calculateTotalDiscount: TotalDiscount = (group) => {
-    return +calculateDiscountsForGroup(group).reduce((acc, cur) => acc += cur, 0).toPrecision(2)
-}
+    return calculateDiscountsForGroup(group)
+        .map(g => {
+            const { set, discount } = g
+            const price = (set.size * 800)
+            return {
+                set,
+                discount,
+                finalPrice: price - (price * discount)
+            }
+        })
 
-export const toPercent: (decimal: number) => string = (decimal) => {
-    return `${(decimal * 100)}%`
 }

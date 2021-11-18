@@ -1,26 +1,99 @@
 import {
     betterDiscontsForPurchase,
     buildGroupsWithRoundTrip,
-    calculateDiscountsForGroup,
-    calculateTotalDiscount,
     fromListToMapOfFrequency,
     getHigherFrequencyKey,
-    makeBase, makeBaseArr, makeRemainder, toPercent
+    makeBase, makeBaseArr, makeRemainder
 } from '../src/index'
 
 
 describe('better discount for purchase', () => {
-    test('should be 35%', () => {
-        const discount = betterDiscontsForPurchase([1, 1, 1, 2, 2, 3, 3, 4, 5, 5])
 
-        expect(discount).toBe(0.35)
-    })
+    test('two groups of four is cheaper than group of five plus group of three', () => {
+        const basket = [1, 1, 2, 2, 3, 3, 4, 5];
+        expect(betterDiscontsForPurchase(basket)).toEqual(5120);
+    });
 
-    test('should be 20%', () => {
-        const discount = betterDiscontsForPurchase([1, 1, 1, 4, 5, 5])
+    test('only a single book', () => {
+        const basket = [1];
+        expect(betterDiscontsForPurchase(basket)).toEqual(800);
+    });
 
-        expect(discount).toBe(0.15)
-    })
+    test('two of the same book', () => {
+        const basket = [2, 2];
+        expect(betterDiscontsForPurchase(basket)).toEqual(1600);
+    });
+
+    test('two different books', () => {
+        const basket = [1, 2];
+        expect(betterDiscontsForPurchase(basket)).toEqual(1520);
+    });
+
+    test('three different books', () => {
+        const basket = [1, 2, 3];
+        expect(betterDiscontsForPurchase(basket)).toEqual(2160);
+    });
+
+    test('four different books', () => {
+        const basket = [1, 2, 3, 4];
+        expect(betterDiscontsForPurchase(basket)).toEqual(2560);
+    });
+
+    test('five different books', () => {
+        const basket = [1, 2, 3, 4, 5];
+        expect(betterDiscontsForPurchase(basket)).toEqual(3000);
+    });
+
+    test('two groups of four is cheaper than group of five plus group of three', () => {
+        const basket = [1, 1, 2, 2, 3, 3, 4, 5];
+        expect(betterDiscontsForPurchase(basket)).toEqual(5120);
+    });
+
+    test('two groups of four is cheaper than groups of five and three', () => {
+        const basket = [1, 1, 2, 3, 4, 4, 5, 5];
+        expect(betterDiscontsForPurchase(basket)).toEqual(5120);
+    });
+
+    test('group of four plus group of two is cheaper than two groups of three', () => {
+        const basket = [1, 1, 2, 2, 3, 4];
+        expect(betterDiscontsForPurchase(basket)).toEqual(4080);
+    });
+
+    test('two each of first 4 books and 1 copy each of rest', () => {
+        const basket = [1, 1, 2, 2, 3, 3, 4, 4, 5];
+        expect(betterDiscontsForPurchase(basket)).toEqual(5560);
+    });
+
+    test('two copies of each book', () => {
+        const basket = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5];
+        expect(betterDiscontsForPurchase(basket)).toEqual(6000);
+    });
+
+    test('three copies of first book and 2 each of remaining', () => {
+        const basket = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 1];
+        expect(betterDiscontsForPurchase(basket)).toEqual(6800);
+    });
+
+    test('three each of first 2 books and 2 each of remaining books', () => {
+        const basket = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 1, 2];
+        expect(betterDiscontsForPurchase(basket)).toEqual(7520);
+    });
+
+    test('four groups of four are cheaper than two groups each of five and three', () => {
+        const basket = [1, 1, 2, 2, 3, 3, 4, 5, 1, 1, 2, 2, 3, 3, 4, 5];
+        expect(betterDiscontsForPurchase(basket)).toEqual(10240);
+    });
+
+    test('two groups of four and a group of five', () => {
+        const basket = [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 5, 5];
+        expect(betterDiscontsForPurchase(basket)).toEqual(8120);
+    });
+
+    test('shuffled book order', () => {
+        const basket = [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3];
+        expect(betterDiscontsForPurchase(basket)).toEqual(8120);
+    });
+
 })
 
 describe('to map frequency', () => {
@@ -93,30 +166,4 @@ describe('roud trip', () => {
         ])
     })
 
-})
-
-describe('discount calculator', () => {
-    test('should be good', () => {
-        const builded = buildGroupsWithRoundTrip(makeBase(3, { 1: 2, 2: 1, 3: 5 }))
-        const discounts = calculateDiscountsForGroup(builded)
-
-        expect(discounts).toStrictEqual([0.05, 0.05, 0.05, 0, 0])
-    })
-
-    describe('total discount', () => {
-        test('should be 15%', () => {
-            const builded = buildGroupsWithRoundTrip(makeBase(3, { 1: 2, 2: 1, 3: 5 }))
-            const total = calculateTotalDiscount(builded)
-
-            expect(total).toEqual(0.15)
-        })
-
-        test('should present as percentage string', () => {
-            const builded = buildGroupsWithRoundTrip(makeBase(3, { 1: 2, 2: 1, 3: 5 }))
-            const total = calculateTotalDiscount(builded)
-            const asStr = toPercent(total)
-
-            expect(asStr).toBe("15%")
-        })
-    })
 })
