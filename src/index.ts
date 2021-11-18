@@ -45,6 +45,7 @@ export const constructGroups: GroupingFunction = (map) => {
         .map(buildGroupsWithRoundTrip)
 }
 
+//bug! here the logic of combinations with better discounts are required
 export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
     const group: Array<Set<number>> = base.base.map(arr => new Set(arr))
     let remainder = base.remainder
