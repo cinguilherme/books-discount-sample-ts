@@ -3,12 +3,13 @@ import {
     breakerSequences,
     fromListToMapOfFrequency,
     getHigherFrequencyKey,
+    groupRepeats,
     makeBase, makeBaseArr,
     makeRemainder, optimalAddBookBetter, optimalAddBookToBestSetForBestDiscount
 } from '../src/index'
 
 
-describe('better discount for purchase', () => {
+xdescribe('better discount for purchase', () => {
 
     test('two groups of four is cheaper than group of five plus group of three', () => {
         const basket = [1, 1, 2, 2, 3, 3, 4, 5];
@@ -134,7 +135,7 @@ xdescribe('make remainder', () => {
     })
 })
 
-describe('mase base', () => {
+xdescribe('mase base', () => {
     expect(makeBase(1, { 1: 2, 2: 1, 3: 1 }))
         .toStrictEqual({
             base: [[1], [1]],
@@ -246,7 +247,7 @@ xdescribe('breaker sequence', () => {
 
 })
 
-describe('optimal add book v2', () => {
+xdescribe('optimal add book v2', () => {
     test('test optimal strat v2', () => {
 
         const baseSets = [
@@ -261,5 +262,22 @@ describe('optimal add book v2', () => {
 
         console.log(sets);
         console.log(remainder);
+    })
+})
+
+describe('group repeats', () => {
+    test('make list repeats', () => {
+
+        const list = [1, 1, 3, 4, 5, 2, 1, 2]
+        const actual = groupRepeats(list)
+        console.log(actual);
+        
+        expect(actual).toStrictEqual([
+            [1, 1, 1],
+            [2, 2],
+            [3],
+            [4],
+            [5]
+        ])
     })
 })
