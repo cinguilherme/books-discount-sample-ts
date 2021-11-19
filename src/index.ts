@@ -48,7 +48,6 @@ export const constructGroups: GroupingFunction = (map) => {
         .map(buildGroupsWithRoundTrip)
 
     return constructed
-
 }
 
 export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
@@ -64,12 +63,7 @@ export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
         while (remainderX.length) {
             const { sets, remainder } = optimalAddBookBetter(group, remainderX)
             group = sets
-            remainderX = remainder
-
-            console.log('progress');
-            console.log(group);
-            console.log(remainderX);
-            
+            remainderX = remainder;
         }
     })
 
@@ -78,6 +72,7 @@ export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
 }
 
 export const optimalAddBookBetter = (sets: Array<Set<number>>, remainder: Array<number>) => {
+    let inserted = false
 
     const bestCandidate = getBestPossibleCandidateSetToAddNewBook(sets)
     for (var i = 0; i < remainder.length; i++) {
@@ -85,11 +80,12 @@ export const optimalAddBookBetter = (sets: Array<Set<number>>, remainder: Array<
             sets[bestCandidate.index].add(remainder[i])
             delete remainder[i]
             remainder = remainder.filter(v => v != undefined)
+            inserted = true
             break
         }
     }
 
-    return { sets: sets, remainder: remainder }
+    return { sets: sets, remainder: remainder, inserted: inserted }
 }
 
 const getBestPossibleCandidateSetToAddNewBook = (sets: Array<Set<number>>) => {
@@ -218,7 +214,6 @@ const calculateTotalDiscount: TotalDiscount = (group) => {
                 finalPrice: price - (price * discount)
             }
         })
-
 }
 
 export const breakerSequences = (arr: Array<number>) => {
