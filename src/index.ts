@@ -178,3 +178,20 @@ const calculateTotalDiscount: TotalDiscount = (group) => {
         })
 
 }
+
+export const breakerSequences = (arr: Array<number>) => {
+
+    const sets: Array<Set<number>> = []
+
+    arr.forEach(n => {
+        const candidates = sets.filter(s => !s.has(n))
+        if (candidates.length == 0) {
+            sets.push(new Set([n]))
+        } else {
+            candidates[0].add(n)
+        }
+    })
+
+    return sets
+
+}

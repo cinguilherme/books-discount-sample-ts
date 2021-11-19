@@ -1,5 +1,6 @@
 import {
     betterDiscontsForPurchase,
+    breakerSequences,
     buildGroupsWithRoundTrip,
     fromListToMapOfFrequency,
     getHigherFrequencyKey,
@@ -198,29 +199,63 @@ describe('breakdown', () => {
     test('nice observation', () => {
 
         const basket = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 1, 2];
-        const afterBreak = [3, 3, 4, 4, 5, 5]
+        
         const baseSets = [
             new Set([1, 2]),
             new Set([1, 2]),
             new Set([1, 2]),
         ]
 
+        const afterBreak = [3, 3, 4, 4, 5, 5]
+        const s = new Set(afterBreak)
+
         let nextGroup = optimalAddBookToBestSetForBestDiscount(baseSets, 3)
+        nextGroup = optimalAddBookToBestSetForBestDiscount(nextGroup, 4)
+        nextGroup = optimalAddBookToBestSetForBestDiscount(nextGroup, 5)
+        
+        //issue
+        nextGroup = optimalAddBookToBestSetForBestDiscount(nextGroup, 3)
         console.log(nextGroup);
         
-        nextGroup = optimalAddBookToBestSetForBestDiscount(baseSets, 3)
-        console.log(nextGroup);
-        nextGroup = optimalAddBookToBestSetForBestDiscount(baseSets, 4)
-        console.log(nextGroup);
-        nextGroup = optimalAddBookToBestSetForBestDiscount(baseSets, 4)
-        console.log(nextGroup);
-        nextGroup = optimalAddBookToBestSetForBestDiscount(baseSets, 5)
+        //issue
+        nextGroup = optimalAddBookToBestSetForBestDiscount(nextGroup, 4)
         console.log(nextGroup);
         
         //bug here
-        nextGroup = optimalAddBookToBestSetForBestDiscount(baseSets, 5)
+        nextGroup = optimalAddBookToBestSetForBestDiscount(nextGroup, 5)
         console.log(nextGroup);
         
 
     })
+})
+
+describe('breaker sequence', () => {
+
+    test('breaker', () => {
+        const arr = [1, 1, 2, 3]
+        const actual = breakerSequences(arr)
+        const expected = [new Set([1, 2, 3]), new Set([1])]
+        expect(actual).toStrictEqual(expected)
+
+    })
+
+    test('breaker 2', () => {
+        const arr = [1, 1, 2, 2, 2, 3]
+        const actual = breakerSequences(arr)
+        const expected = [new Set([1, 2, 3]), new Set([1, 2]), new Set([2])]
+        expect(actual).toStrictEqual(expected)
+
+    })
+
+    test('breaker 3', () => {
+        const arr = [1, 2, 2, 2, 3, 4, 5, 5, 5, 5]
+        const actual = breakerSequences(arr)
+        const expected = [new Set([1, 2, 3, 4, 5]),
+        new Set([2, 5]),
+        new Set([2, 5]),
+        new Set([5])]
+        expect(actual).toStrictEqual(expected)
+
+    })
+
 })
