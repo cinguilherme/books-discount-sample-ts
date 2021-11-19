@@ -45,7 +45,7 @@ export const fromListToMapOfFrequency: TrasformArrayToMap = (books) => {
 export const constructGroups: GroupingFunction = (map) => {
     return [map].map(getHigherFrequencyKey)
         .map(freq => makeBase(freq, map))
-        .map(buildGroupsWithRoundTrip)
+        .map(makePermutationsAndReturnTheBestDiscountResult)
 }
 
 //bug! here the logic of combinations with better discounts are required
@@ -69,8 +69,66 @@ export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
     return group
 }
 
-type PermutationFunction = (base: Base, discountFunction: Function) => Array<Set<number>>
-export const makePermutationsAndReturnTheBestDiscountResult: PermutationFunction = (base, discountFunction) => {
+const buildDiscountDiffArray = (subSets: Array<Set<number>>) => {
+    const currDiscounts = subSets.map(s => discoutSwitch(s.size))
+    const nextDiscounts = subSets.map(s => discoutSwitch(s.size+1))
+    const diff: Array<number> = []
+    for(var i = 0; i < currDiscounts.length; i++){
+        diff.push(nextDiscounts[i] - currDiscounts[i])
+    }
+    return diff
+}
+
+const getIndexesWithHighVal:(diff: Array<number>, highval: number) => Array<number> = (diff, highval) => {
+    const indexes = []
+    for(var i = 0; i < diff.length; i++){
+        if(diff[i] == highval){
+            indexes.push(i)
+        }
+    }
+    return indexes
+}
+const notAlreadyInSet = (set: Set<number>, book:number) => !set.has(book)
+const alreadyInSet = (set: Set<number>, book:number) => set.has(book)
+const getBestCandidate = (indexes: Array<any>, subSets: Array<Set<number>>) => {
+    const indexWithSize = indexes.map(i => {
+        return {
+            index: i,
+            size: subSets[i].size
+        }
+    })
+
+    let smallest = {
+        index: -1,
+        size: 1000
+    }
+    indexWithSize.forEach(c => {
+        if(c.size < smallest.size)
+            smallest = c
+    })
+    return smallest
+}
+
+type OptimalAddBook = (sets: Array<Set<number>>, newBook: number) => Array<Set<number>>
+export const optimalAddBookToBestSetForBestDiscount: OptimalAddBook = (sets, newBook) => {
+
+    const notToTouch = sets.filter(set => alreadyInSet(set, newBook)) 
+    const subSets = sets.filter(set => notAlreadyInSet(set, newBook))
+
+    const diff = buildDiscountDiffArray(subSets)
+    
+    const highestDiffVal = Math.max(...diff)
+    const indexes = getIndexesWithHighVal(diff, highestDiffVal)
+
+    const smallest = getBestCandidate(indexes, subSets)
+
+    subSets[smallest.index].add(newBook)
+
+    return [...notToTouch, ...subSets]
+}
+
+type PermutationFunction = (base: Base) => Groups
+export const makePermutationsAndReturnTheBestDiscountResult: PermutationFunction = (base) => {
     let fullRound = false
     const group: Array<Set<number>> = base.base.map(arr => new Set(arr))
     let remainder = base.remainder

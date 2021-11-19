@@ -5,7 +5,7 @@ import {
     discoutSwitch,
     fromListToMapOfFrequency,
     getHigherFrequencyKey,
-    makeBase, makeBaseArr, makePermutationsAndReturnTheBestDiscountResult, makeRemainder
+    makeBase, makeBaseArr, makePermutationsAndReturnTheBestDiscountResult, makeRemainder, optimalAddBookToBestSetForBestDiscount
 } from '../src/index'
 
 
@@ -170,37 +170,21 @@ describe('roud trip', () => {
 
 })
 
-describe('makePermutationsAndReturnTheBestDiscountResult', () => {
+describe('optimalAddBookToBestSetForBestDiscount', () => {
+    test('should make best decision to where to insert the new book resulting in the largest difference in discount and increasing the smallest set', () => {
 
-    const sample: Base = {
-        base: [[1], [1], [1]],
-        remainder: [2, 3, 4]
-    }
-
-    test('should be', () => {
-        const res = makePermutationsAndReturnTheBestDiscountResult(sample, discoutSwitch)
-        console.log(res);
-        
-        expect(res).toStrictEqual([
+        const baseSets = [
+            new Set([1, 2, 3]),
             new Set([1, 2]),
-            new Set([1, 3]),
-            new Set([1, 4]),
-        ])
-        console.log(res);
+        ]
+
+        const expected = [
+            new Set([1, 2, 3, 4]),
+            new Set([1, 2]),
+        ]
+
+        const actual = optimalAddBookToBestSetForBestDiscount(baseSets, 4)
+        expect(actual).toStrictEqual(expected)
 
     })
-
-
-    test('should fix this issue', () => {
-        const basket = [1, 1, 2, 2, 3, 4];
-        const baseX = {
-            base: [[1], [1]],
-            remainder: [2, 2, 3, 4]
-        }
-
-        const res = makePermutationsAndReturnTheBestDiscountResult(baseX, discoutSwitch)
-        console.log(res);
-        
-    })
-
 })
