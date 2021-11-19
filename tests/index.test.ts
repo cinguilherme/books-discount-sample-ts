@@ -9,7 +9,7 @@ import {
 } from '../src/index'
 
 
-xdescribe('better discount for purchase', () => {
+describe('better discount for purchase', () => {
 
     xtest('two groups of four is cheaper than group of five plus group of three', () => {
         const basket = [1, 1, 2, 2, 3, 3, 4, 5];
@@ -98,7 +98,7 @@ xdescribe('better discount for purchase', () => {
 
 })
 
-describe('to map frequency', () => {
+xdescribe('to map frequency', () => {
     test('to map of frequency', () => {
 
         expect(fromListToMapOfFrequency([1, 1, 2, 3]))
@@ -109,7 +109,7 @@ describe('to map frequency', () => {
     })
 })
 
-describe('high and low frequency', () => {
+xdescribe('high and low frequency', () => {
     describe('high', () => {
         test('should be 1 with the frequency 5', () => {
             expect(getHigherFrequencyKey({ 1: 5, 2: 1, 4: 2 })).toBe(1)
@@ -120,7 +120,7 @@ describe('high and low frequency', () => {
     })
 })
 
-describe('makeBaseArr', () => {
+xdescribe('makeBaseArr', () => {
     test('base should be [[1] [1] [1]]', () => {
         expect(makeBaseArr(1, { 1: 3, 2: 1, 3: 1 }))
             .toStrictEqual([
@@ -129,7 +129,7 @@ describe('makeBaseArr', () => {
     })
 })
 
-describe('make remainder', () => {
+xdescribe('make remainder', () => {
     test('remainder should be 2,3,4', () => {
         expect(makeRemainder(1, { 1: 2, 2: 1, 3: 1, 4: 1 })).toStrictEqual([2, 3, 4])
     })
@@ -143,34 +143,7 @@ describe('mase base', () => {
         })
 })
 
-describe('roud trip', () => {
-
-    test('should build the groups', () => {
-
-        const builded = buildGroupsWithRoundTrip(makeBase(1, { 1: 2, 2: 1, 3: 1 }))
-
-        expect(builded).toStrictEqual([
-            new Set([1, 2]),
-            new Set([1, 3]),
-        ])
-    })
-
-    test('should build the groups', () => {
-
-        const builded = buildGroupsWithRoundTrip(makeBase(3, { 1: 2, 2: 1, 3: 5 }))
-
-        expect(builded).toStrictEqual([
-            new Set([3, 1]),
-            new Set([3, 1]),
-            new Set([3, 2]),
-            new Set([3]),
-            new Set([3]),
-        ])
-    })
-
-})
-
-describe('optimalAddBookToBestSetForBestDiscount', () => {
+xdescribe('optimalAddBookToBestSetForBestDiscount', () => {
     test('should make best decision to where to insert the new book resulting in the largest difference in discount and increasing the smallest set', () => {
 
         const baseSets = [
@@ -189,7 +162,7 @@ describe('optimalAddBookToBestSetForBestDiscount', () => {
     })
 })
 
-describe('breakdown', () => {
+xdescribe('breakdown', () => {
     test('two groups of four expected', () => {
         const basket = [1, 1, 2, 2, 3, 3, 4, 5];
 
@@ -199,7 +172,7 @@ describe('breakdown', () => {
     test('nice observation', () => {
 
         const basket = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 1, 2];
-        
+
         const baseSets = [
             new Set([1, 2]),
             new Set([1, 2]),
@@ -211,19 +184,14 @@ describe('breakdown', () => {
         let nextGroup = optimalAddBookToBestSetForBestDiscount(baseSets, 3)
         nextGroup = optimalAddBookToBestSetForBestDiscount(nextGroup, 4)
         nextGroup = optimalAddBookToBestSetForBestDiscount(nextGroup, 5)
-        
         nextGroup = optimalAddBookToBestSetForBestDiscount(nextGroup, 3)
-        console.log(nextGroup);
-        
         nextGroup = optimalAddBookToBestSetForBestDiscount(nextGroup, 4)
-        console.log(nextGroup);
-        
         nextGroup = optimalAddBookToBestSetForBestDiscount(nextGroup, 5)
         console.log(nextGroup);
     })
 })
 
-describe('combining breaker sequence with grouping', () => {
+xdescribe('combining breaker sequence with grouping', () => {
 
     test('should do appropriate groupings', () => {
 
@@ -234,7 +202,7 @@ describe('combining breaker sequence with grouping', () => {
         ]
 
         const afterBreak = [3, 3, 4, 4, 5, 5]
-        
+
         const realStuff = breakerSequences(afterBreak)
         let actual = undefined
         realStuff.forEach(s => {
@@ -242,13 +210,13 @@ describe('combining breaker sequence with grouping', () => {
                 actual = optimalAddBookToBestSetForBestDiscount(baseSets, n)
             })
         })
-        const expected = [ new Set([ 1, 2, 5, 3]), new Set( [1, 2, 3, 4 ]), new Set( [1, 2, 4, 5 ])]
-        
+        const expected = [new Set([1, 2, 5, 3]), new Set([1, 2, 3, 4]), new Set([1, 2, 4, 5])]
+
         expect(actual).toStrictEqual(expected)
     })
 })
 
-describe('breaker sequence', () => {
+xdescribe('breaker sequence', () => {
 
     test('breaker', () => {
         const arr = [1, 1, 2, 3]

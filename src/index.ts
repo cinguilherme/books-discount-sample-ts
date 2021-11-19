@@ -53,12 +53,20 @@ export const constructGroups: GroupingFunction = (map) => {
 
 //bug! here the logic of combinations with better discounts are required
 export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
+
+    console.log(base);
+
     let group: Array<Set<number>> = base.base.map(arr => new Set(arr))
     const remainder = base.remainder
     
-    remainder.forEach(book => {
-        group = optimalAddBookToBestSetForBestDiscount(group, book)
+    const sequence = breakerSequences(remainder)
+    sequence.forEach(s => {
+        s.forEach(n => {
+            group = optimalAddBookToBestSetForBestDiscount(group, n)    
+        })
     })
+    console.log(group);
+    
 
     return group
 }
