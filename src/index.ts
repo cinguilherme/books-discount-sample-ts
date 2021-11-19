@@ -51,24 +51,40 @@ export const constructGroups: GroupingFunction = (map) => {
 
 }
 
-//bug! here the logic of combinations with better discounts are required
 export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
 
-    console.log(base);
-
     let group: Array<Set<number>> = base.base.map(arr => new Set(arr))
-    const remainder = base.remainder
-    
-    const sequence = breakerSequences(remainder)
-    sequence.forEach(s => {
-        s.forEach(n => {
-            group = optimalAddBookToBestSetForBestDiscount(group, n)    
-        })
-    })
-    console.log(group);
-    
+    const remainderV1 = base.remainder
+
+    let remainderX = remainderV1
+    while (remainderX.length) {
+        const { sets, remainder } = optimalAddBookBetter(group, remainderX)
+        group = sets
+        remainderX = remainder
+    }
 
     return group
+}
+
+export const optimalAddBookBetter = (sets: Array<Set<number>>, remainder: Array<number>) => {
+    const bestCandidate = getBestPossibleCandidateSetToAddNewBook(sets)
+    for (var i = 0; i < remainder.length; i++) {
+        if (!sets[bestCandidate.index].has(remainder[i])) {
+            sets[bestCandidate.index].add(remainder[i])
+            delete remainder[i]
+            remainder = remainder.filter(v => v != undefined)
+            break
+        }
+    }
+
+    return { sets: sets, remainder: remainder }
+}
+
+const getBestPossibleCandidateSetToAddNewBook = (sets: Array<Set<number>>) => {
+    const diffHigh: number[] = buildDiscountDiffArray(sets)
+    const highestDiffValM = Math.max(...diffHigh)
+    const indexesX = getIndexesWithHighVal(diffHigh, highestDiffValM)
+    return getBestCandidate(indexesX, sets)
 }
 
 const buildDiscountDiffArray = (subSets: Array<Set<number>>) => {
@@ -92,23 +108,27 @@ const getIndexesWithHighVal: (diff: Array<number>, highval: number) => Array<num
 }
 const notAlreadyInSet = (set: Set<number>, book: number) => !set.has(book)
 const alreadyInSet = (set: Set<number>, book: number) => set.has(book)
+
 const getBestCandidate = (indexes: Array<any>, subSets: Array<Set<number>>) => {
-    const indexWithSize = indexes.map(i => {
+    const indexWithSize: Array<any> = indexes.map(i => {
         return {
             index: i,
             size: subSets[i].size
         }
     })
 
-    let smallest = {
+    let best = {
         index: -1,
         size: 1000
     }
+
     indexWithSize.forEach(c => {
-        if (c.size < smallest.size)
-            smallest = c
+        if (c.size == 3 || c.size < best.size) {
+            best = c
+        }
     })
-    return smallest
+
+    return best
 }
 
 type OptimalAddBook = (sets: Array<Set<number>>, newBook: number) => Array<Set<number>>
@@ -122,17 +142,19 @@ export const optimalAddBookToBestSetForBestDiscount: OptimalAddBook = (sets, new
     const highestDiffVal = Math.max(...diff)
     const indexes = getIndexesWithHighVal(diff, highestDiffVal)
 
-    const smallest = getBestCandidate(indexes, subSets)
+    const bestCandidate = getBestCandidate(indexes, subSets)
 
-    subSets[smallest.index].add(newBook)
+    subSets[bestCandidate.index].add(newBook)
 
     return [...notToTouch, ...subSets]
 }
 
 export const makeBase: (high: number, map: any) => Base = (high, map) => {
+    const basex = makeBaseArr(high, map)
+    const remainderx = makeRemainder(high, map)
     return {
-        base: makeBaseArr(high, map),
-        remainder: makeRemainder(high, map)
+        base: basex,
+        remainder: remainderx
     }
 }
 

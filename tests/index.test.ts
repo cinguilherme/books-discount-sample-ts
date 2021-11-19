@@ -1,72 +1,71 @@
 import {
     betterDiscontsForPurchase,
     breakerSequences,
-    buildGroupsWithRoundTrip,
     fromListToMapOfFrequency,
     getHigherFrequencyKey,
     makeBase, makeBaseArr,
-    makeRemainder, optimalAddBookToBestSetForBestDiscount
+    makeRemainder, optimalAddBookBetter, optimalAddBookToBestSetForBestDiscount
 } from '../src/index'
 
 
 describe('better discount for purchase', () => {
 
-    xtest('two groups of four is cheaper than group of five plus group of three', () => {
+    test('two groups of four is cheaper than group of five plus group of three', () => {
         const basket = [1, 1, 2, 2, 3, 3, 4, 5];
         expect(betterDiscontsForPurchase(basket)).toEqual(5120);
     });
 
-    xtest('only a single book', () => {
+    test('only a single book', () => {
         const basket = [1];
         expect(betterDiscontsForPurchase(basket)).toEqual(800);
     });
 
-    xtest('two of the same book', () => {
+    test('two of the same book', () => {
         const basket = [2, 2];
         expect(betterDiscontsForPurchase(basket)).toEqual(1600);
     });
 
-    xtest('two different books', () => {
+    test('two different books', () => {
         const basket = [1, 2];
         expect(betterDiscontsForPurchase(basket)).toEqual(1520);
     });
 
-    xtest('three different books', () => {
+    test('three different books', () => {
         const basket = [1, 2, 3];
         expect(betterDiscontsForPurchase(basket)).toEqual(2160);
     });
 
-    xtest('four different books', () => {
+    test('four different books', () => {
         const basket = [1, 2, 3, 4];
         expect(betterDiscontsForPurchase(basket)).toEqual(2560);
     });
 
-    xtest('five different books', () => {
+    test('five different books', () => {
         const basket = [1, 2, 3, 4, 5];
         expect(betterDiscontsForPurchase(basket)).toEqual(3000);
     });
 
-    xtest('two groups of four is cheaper than group of five plus group of three', () => {
+    test('two groups of four is cheaper than group of five plus group of three', () => {
         const basket = [1, 1, 2, 2, 3, 3, 4, 5];
         expect(betterDiscontsForPurchase(basket)).toEqual(5120);
     });
 
-    xtest('two groups of four is cheaper than groups of five and three', () => {
+    test('two groups of four is cheaper than groups of five and three', () => {
         const basket = [1, 1, 2, 3, 4, 4, 5, 5];
         expect(betterDiscontsForPurchase(basket)).toEqual(5120);
     });
 
-    xtest('group of four plus group of two is cheaper than two groups of three', () => {
+    test('group of four plus group of two is cheaper than two groups of three', () => {
         const basket = [1, 1, 2, 2, 3, 4];
         expect(betterDiscontsForPurchase(basket)).toEqual(4080);
     });
 
-    xtest('two each of first 4 books and 1 copy each of rest', () => {
+    test('two each of first 4 books and 1 copy each of rest', () => {
         const basket = [1, 1, 2, 2, 3, 3, 4, 4, 5];
         expect(betterDiscontsForPurchase(basket)).toEqual(5560);
     });
 
-    xtest('two copies of each book', () => {
+    test('two copies of each book', () => {
         const basket = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5];
         expect(betterDiscontsForPurchase(basket)).toEqual(6000);
     });
@@ -81,17 +80,17 @@ describe('better discount for purchase', () => {
         expect(betterDiscontsForPurchase(basket)).toEqual(7520);
     });
 
-    xtest('four groups of four are cheaper than two groups each of five and three', () => {
+    test('four groups of four are cheaper than two groups each of five and three', () => {
         const basket = [1, 1, 2, 2, 3, 3, 4, 5, 1, 1, 2, 2, 3, 3, 4, 5];
         expect(betterDiscontsForPurchase(basket)).toEqual(10240);
     });
 
-    xtest('two groups of four and a group of five', () => {
+    test('two groups of four and a group of five', () => {
         const basket = [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 5, 5];
         expect(betterDiscontsForPurchase(basket)).toEqual(8120);
     });
 
-    xtest('shuffled book order', () => {
+    test('shuffled book order', () => {
         const basket = [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3];
         expect(betterDiscontsForPurchase(basket)).toEqual(8120);
     });
@@ -245,4 +244,22 @@ xdescribe('breaker sequence', () => {
 
     })
 
+})
+
+describe('optimal add book v2', () => {
+    test('test optimal strat v2', () => {
+
+        const baseSets = [
+            new Set([1, 2]),
+            new Set([1, 2]),
+            new Set([1, 2]),
+        ]
+
+        const afterBreak = [3, 3, 4, 4, 5, 5]
+
+        const { sets, remainder } = optimalAddBookBetter(baseSets, afterBreak)
+
+        console.log(sets);
+        console.log(remainder);
+    })
 })
