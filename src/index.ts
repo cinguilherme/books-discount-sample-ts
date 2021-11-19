@@ -43,53 +43,47 @@ export const fromListToMapOfFrequency: TrasformArrayToMap = (books) => {
 }
 
 export const constructGroups: GroupingFunction = (map) => {
-    return [map].map(getHigherFrequencyKey)
+    const constructed = [map].map(getHigherFrequencyKey)
         .map(freq => makeBase(freq, map))
-        .map(makePermutationsAndReturnTheBestDiscountResult)
+        .map(buildGroupsWithRoundTrip)
+
+    return constructed
+
 }
 
 //bug! here the logic of combinations with better discounts are required
 export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
-    const group: Array<Set<number>> = base.base.map(arr => new Set(arr))
-    let remainder = base.remainder
-
-    let roundTrip = 0
-    let ite = remainder.shift()!
-    while (remainder.length >= 0 && ite != undefined) {
-
-        if (!group[roundTrip].has(ite)) {
-            group[roundTrip].add(ite)
-            ite = remainder.shift()!
-        }
-
-        if (roundTrip == group.length - 1) roundTrip = 0
-        else roundTrip++
-    }
+    let group: Array<Set<number>> = base.base.map(arr => new Set(arr))
+    const remainder = base.remainder
+    
+    remainder.forEach(book => {
+        group = optimalAddBookToBestSetForBestDiscount(group, book)
+    })
 
     return group
 }
 
 const buildDiscountDiffArray = (subSets: Array<Set<number>>) => {
     const currDiscounts = subSets.map(s => discoutSwitch(s.size))
-    const nextDiscounts = subSets.map(s => discoutSwitch(s.size+1))
+    const nextDiscounts = subSets.map(s => discoutSwitch(s.size + 1))
     const diff: Array<number> = []
-    for(var i = 0; i < currDiscounts.length; i++){
+    for (var i = 0; i < currDiscounts.length; i++) {
         diff.push(nextDiscounts[i] - currDiscounts[i])
     }
     return diff
 }
 
-const getIndexesWithHighVal:(diff: Array<number>, highval: number) => Array<number> = (diff, highval) => {
+const getIndexesWithHighVal: (diff: Array<number>, highval: number) => Array<number> = (diff, highval) => {
     const indexes = []
-    for(var i = 0; i < diff.length; i++){
-        if(diff[i] == highval){
+    for (var i = 0; i < diff.length; i++) {
+        if (diff[i] == highval) {
             indexes.push(i)
         }
     }
     return indexes
 }
-const notAlreadyInSet = (set: Set<number>, book:number) => !set.has(book)
-const alreadyInSet = (set: Set<number>, book:number) => set.has(book)
+const notAlreadyInSet = (set: Set<number>, book: number) => !set.has(book)
+const alreadyInSet = (set: Set<number>, book: number) => set.has(book)
 const getBestCandidate = (indexes: Array<any>, subSets: Array<Set<number>>) => {
     const indexWithSize = indexes.map(i => {
         return {
@@ -103,7 +97,7 @@ const getBestCandidate = (indexes: Array<any>, subSets: Array<Set<number>>) => {
         size: 1000
     }
     indexWithSize.forEach(c => {
-        if(c.size < smallest.size)
+        if (c.size < smallest.size)
             smallest = c
     })
     return smallest
@@ -112,11 +106,11 @@ const getBestCandidate = (indexes: Array<any>, subSets: Array<Set<number>>) => {
 type OptimalAddBook = (sets: Array<Set<number>>, newBook: number) => Array<Set<number>>
 export const optimalAddBookToBestSetForBestDiscount: OptimalAddBook = (sets, newBook) => {
 
-    const notToTouch = sets.filter(set => alreadyInSet(set, newBook)) 
+    const notToTouch = sets.filter(set => alreadyInSet(set, newBook))
     const subSets = sets.filter(set => notAlreadyInSet(set, newBook))
 
-    const diff = buildDiscountDiffArray(subSets)
-    
+    const diff: number[] = buildDiscountDiffArray(subSets)
+
     const highestDiffVal = Math.max(...diff)
     const indexes = getIndexesWithHighVal(diff, highestDiffVal)
 
@@ -125,41 +119,6 @@ export const optimalAddBookToBestSetForBestDiscount: OptimalAddBook = (sets, new
     subSets[smallest.index].add(newBook)
 
     return [...notToTouch, ...subSets]
-}
-
-type PermutationFunction = (base: Base) => Groups
-export const makePermutationsAndReturnTheBestDiscountResult: PermutationFunction = (base) => {
-    let fullRound = false
-    const group: Array<Set<number>> = base.base.map(arr => new Set(arr))
-    let remainder = base.remainder
-
-    let roundTrip = 0
-    let ite = remainder.shift()!
-    while (remainder.length >= 0 && ite != undefined) {
-
-        if (!group[roundTrip].has(ite)) {
-
-            if (group[roundTrip].size < 2 || group[roundTrip].size === 3) {
-                group[roundTrip].add(ite)
-                ite = remainder.shift()!
-                fullRound = false
-            }
-        }
-
-        if (roundTrip == group.length - 1) {
-            roundTrip = 0
-            if (fullRound == false) fullRound = true
-            if (fullRound == true) {
-                fullRound = false
-                if (ite != undefined)
-                    group[roundTrip].add(ite)
-                ite = remainder.shift()!
-            }
-        }
-        else roundTrip++
-    }
-
-    return group
 }
 
 export const makeBase: (high: number, map: any) => Base = (high, map) => {
