@@ -1,13 +1,15 @@
 import {
+    Base,
     betterDiscontsForPurchase,
     buildGroupsWithRoundTrip,
+    discoutSwitch,
     fromListToMapOfFrequency,
     getHigherFrequencyKey,
-    makeBase, makeBaseArr, makeRemainder
+    makeBase, makeBaseArr, makePermutationsAndReturnTheBestDiscountResult, makeRemainder
 } from '../src/index'
 
 
-describe('better discount for purchase', () => {
+xdescribe('better discount for purchase', () => {
 
     test('two groups of four is cheaper than group of five plus group of three', () => {
         const basket = [1, 1, 2, 2, 3, 3, 4, 5];
@@ -164,6 +166,41 @@ describe('roud trip', () => {
             new Set([3]),
             new Set([3]),
         ])
+    })
+
+})
+
+describe('makePermutationsAndReturnTheBestDiscountResult', () => {
+
+    const sample: Base = {
+        base: [[1], [1], [1]],
+        remainder: [2, 3, 4]
+    }
+
+    test('should be', () => {
+        const res = makePermutationsAndReturnTheBestDiscountResult(sample, discoutSwitch)
+        console.log(res);
+        
+        expect(res).toStrictEqual([
+            new Set([1, 2]),
+            new Set([1, 3]),
+            new Set([1, 4]),
+        ])
+        console.log(res);
+
+    })
+
+
+    test('should fix this issue', () => {
+        const basket = [1, 1, 2, 2, 3, 4];
+        const baseX = {
+            base: [[1], [1]],
+            remainder: [2, 2, 3, 4]
+        }
+
+        const res = makePermutationsAndReturnTheBestDiscountResult(baseX, discoutSwitch)
+        console.log(res);
+        
     })
 
 })

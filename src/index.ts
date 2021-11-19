@@ -1,22 +1,25 @@
 export type Groups = Array<Set<number>>
+
 type BetterDiscont = (books: Array<number>) => number
 type GroupingFunction = (map: any) => Array<Groups>
 type Remainder = Array<any>
 type GroupBuilder = (base: Base) => Groups
 type TotalDiscount = (groups: Groups) => Array<DiscountedWithFinalPrice>
 type DiscountCalculator = (group: Groups) => Array<Discounted>
+type TrasformArrayToMap = (books: Array<number>) => Map<number, number>
 
 interface Discounted {
     set: Set<number>
     discount: number
 }
+
 interface DiscountedWithFinalPrice {
     set: Set<number>
     discount: number
     finalPrice: number
 }
 
-interface Base {
+export interface Base {
     base: Array<Array<number>>,
     remainder: Array<number>
 }
@@ -31,7 +34,7 @@ export const betterDiscontsForPurchase: BetterDiscont = (books) => {
         .reduce((acc, cur) => acc += cur, 0)
 }
 
-export const fromListToMapOfFrequency: (books: Array<number>) => Map<number, number> = (books) => {
+export const fromListToMapOfFrequency: TrasformArrayToMap = (books) => {
     return books.reduce(function (map: any, obj: number) {
         if (map[obj]) map[obj]++
         else map[obj] = 1;
@@ -60,6 +63,41 @@ export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
         }
 
         if (roundTrip == group.length - 1) roundTrip = 0
+        else roundTrip++
+    }
+
+    return group
+}
+
+type PermutationFunction = (base: Base, discountFunction: Function) => Array<Set<number>>
+export const makePermutationsAndReturnTheBestDiscountResult: PermutationFunction = (base, discountFunction) => {
+    let fullRound = false
+    const group: Array<Set<number>> = base.base.map(arr => new Set(arr))
+    let remainder = base.remainder
+
+    let roundTrip = 0
+    let ite = remainder.shift()!
+    while (remainder.length >= 0 && ite != undefined) {
+
+        if (!group[roundTrip].has(ite)) {
+
+            if (group[roundTrip].size < 2 || group[roundTrip].size === 3) {
+                group[roundTrip].add(ite)
+                ite = remainder.shift()!
+                fullRound = false
+            }
+        }
+
+        if (roundTrip == group.length - 1) {
+            roundTrip = 0
+            if (fullRound == false) fullRound = true
+            if (fullRound == true) {
+                fullRound = false
+                if (ite != undefined)
+                    group[roundTrip].add(ite)
+                ite = remainder.shift()!
+            }
+        }
         else roundTrip++
     }
 
@@ -95,7 +133,7 @@ export const getHigherFrequencyKey = (map: any) => {
     return key
 }
 
-const discoutSwitch = (count: number) => {
+export const discoutSwitch = (count: number) => {
     switch (count) {
         case 1: return 0
         case 2: return 0.05
@@ -106,11 +144,11 @@ const discoutSwitch = (count: number) => {
     }
 }
 
-export const calculateDiscountsForGroup: DiscountCalculator = (group) => {
+const calculateDiscountsForGroup: DiscountCalculator = (group) => {
     return group.map(set => { return { set: set, discount: discoutSwitch(set.size) } })
 }
 
-export const calculateTotalDiscount: TotalDiscount = (group) => {
+const calculateTotalDiscount: TotalDiscount = (group) => {
     return calculateDiscountsForGroup(group)
         .map(g => {
             const { set, discount } = g
