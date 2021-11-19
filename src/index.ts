@@ -57,8 +57,9 @@ export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
     const remainderV1 = base.remainder
 
     const sequence = breakerSequences(remainderV1)
+    const sequencev2 = groupRepeats(remainderV1)
 
-    sequence.forEach(s => {
+    sequencev2.forEach(s => {
         let remainderX = Array.from(s)
         while (remainderX.length) {
             const { sets, remainder } = optimalAddBookBetter(group, remainderX)
@@ -67,6 +68,8 @@ export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
 
             console.log('progress');
             console.log(group);
+            console.log(remainderX);
+            
         }
     })
 
@@ -75,9 +78,6 @@ export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
 }
 
 export const optimalAddBookBetter = (sets: Array<Set<number>>, remainder: Array<number>) => {
-    console.log(`attempt to add ${remainder} to sets `);
-    console.log(sets);
-
 
     const bestCandidate = getBestPossibleCandidateSetToAddNewBook(sets)
     for (var i = 0; i < remainder.length; i++) {

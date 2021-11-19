@@ -9,7 +9,7 @@ import {
 } from '../src/index'
 
 
-xdescribe('better discount for purchase', () => {
+describe('better discount for purchase', () => {
 
     test('two groups of four is cheaper than group of five plus group of three', () => {
         const basket = [1, 1, 2, 2, 3, 3, 4, 5];
@@ -265,7 +265,7 @@ xdescribe('optimal add book v2', () => {
     })
 })
 
-describe('group repeats', () => {
+xdescribe('group repeats', () => {
     test('make list repeats', () => {
 
         const list = [1, 1, 3, 4, 5, 2, 1, 2]
