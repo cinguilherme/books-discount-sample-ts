@@ -207,25 +207,44 @@ describe('breakdown', () => {
         ]
 
         const afterBreak = [3, 3, 4, 4, 5, 5]
-        const s = new Set(afterBreak)
 
         let nextGroup = optimalAddBookToBestSetForBestDiscount(baseSets, 3)
         nextGroup = optimalAddBookToBestSetForBestDiscount(nextGroup, 4)
         nextGroup = optimalAddBookToBestSetForBestDiscount(nextGroup, 5)
         
-        //issue
         nextGroup = optimalAddBookToBestSetForBestDiscount(nextGroup, 3)
         console.log(nextGroup);
         
-        //issue
         nextGroup = optimalAddBookToBestSetForBestDiscount(nextGroup, 4)
         console.log(nextGroup);
         
-        //bug here
         nextGroup = optimalAddBookToBestSetForBestDiscount(nextGroup, 5)
         console.log(nextGroup);
-        
+    })
+})
 
+describe('combining breaker sequence with grouping', () => {
+
+    test('should do appropriate groupings', () => {
+
+        const baseSets = [
+            new Set([1, 2]),
+            new Set([1, 2]),
+            new Set([1, 2]),
+        ]
+
+        const afterBreak = [3, 3, 4, 4, 5, 5]
+        
+        const realStuff = breakerSequences(afterBreak)
+        let actual = undefined
+        realStuff.forEach(s => {
+            s.forEach(n => {
+                actual = optimalAddBookToBestSetForBestDiscount(baseSets, n)
+            })
+        })
+        const expected = [ new Set([ 1, 2, 5, 3]), new Set( [1, 2, 3, 4 ]), new Set( [1, 2, 4, 5 ])]
+        
+        expect(actual).toStrictEqual(expected)
     })
 })
 
