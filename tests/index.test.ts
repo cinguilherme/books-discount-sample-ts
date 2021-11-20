@@ -2,8 +2,6 @@ import {
     betterDiscontsForPurchase,
     fromListToMapOfFrequency,
     getHigherFrequencyKey,
-    makeBase, makeBaseArr,
-    makeRemainder,
 } from '../src/index'
 
 
@@ -116,27 +114,4 @@ describe('high and low frequency', () => {
             expect(getHigherFrequencyKey({ 1: 1, 2: 1, 4: 2 })).toBe(4)
         })
     })
-})
-
-describe('makeBaseArr', () => {
-    test('base should be [[1] [1] [1]]', () => {
-        expect(makeBaseArr(1, { 1: 3, 2: 1, 3: 1 }))
-            .toStrictEqual([
-                [1], [1], [1]
-            ])
-    })
-})
-
-describe('make remainder', () => {
-    test('remainder should be 2,3,4', () => {
-        expect(makeRemainder(1, { 1: 2, 2: 1, 3: 1, 4: 1 })).toStrictEqual([2, 3, 4])
-    })
-})
-
-describe('mase base', () => {
-    expect(makeBase(1, { 1: 2, 2: 1, 3: 1 }))
-        .toStrictEqual({
-            base: [[1], [1]],
-            remainder: [2, 3]
-        })
 })

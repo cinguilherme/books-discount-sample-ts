@@ -27,8 +27,6 @@ export interface Base {
     remainder: Array<number>
 }
 
-const bookPrice = 800
-
 export const betterDiscontsForPurchase: BetterDiscont = (books) => {
     const priceReducer = (acc: number, cur: DiscountedWithFinalPrice) => acc += cur.finalPrice
     const sum = (acc: number, cur: number) => acc += cur
@@ -51,12 +49,30 @@ export const fromListToMapOfFrequency: TrasformArrayToMap = (books) => {
 export const constructGroups: GroupingFunction = (map) => {
     const constructed = [map].map(getHigherFrequencyKey)
         .map(freq => makeBase(freq, map))
-        .map(buildGroupsWithRoundTrip)
+        .map(buildOptimalGroups)
 
     return constructed
 }
+const makeBase: (high: number, map: any) => Base = (high, map) => {
+    const basex = makeBaseArr(high, map)
+    const remainderx = makeRemainder(high, map)
+    return {
+        base: basex,
+        remainder: remainderx
+    }
+}
 
-export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
+const makeRemainder: (high: number, map: any) => Remainder = (high, map) => {
+    return Object.entries(map)
+        .filter((t: Array<any>) => t[0] != high)
+        .flatMap(t => new Array(t[1]).fill(+t[0]))
+}
+
+const makeBaseArr = (high: number, map: any) => {
+    return Array(map[high]).fill([high])
+}
+
+export const buildOptimalGroups: GroupBuilder = (base) => {
 
     let group: Array<Set<number>> = base.base.map(arr => new Set(arr))
     const remainderV1 = base.remainder
@@ -73,27 +89,7 @@ export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
         }
     })
 
-
     return group
-}
-
-export const makeBase: (high: number, map: any) => Base = (high, map) => {
-    const basex = makeBaseArr(high, map)
-    const remainderx = makeRemainder(high, map)
-    return {
-        base: basex,
-        remainder: remainderx
-    }
-}
-
-export const makeRemainder: (high: number, map: any) => Remainder = (high, map) => {
-    return Object.entries(map)
-        .filter((t: Array<any>) => t[0] != high)
-        .flatMap(t => new Array(t[1]).fill(+t[0]))
-}
-
-export const makeBaseArr = (high: number, map: any) => {
-    return Array(map[high]).fill([high])
 }
 
 export const getHigherFrequencyKey = (map: any) => {

@@ -21,9 +21,6 @@ describe('setBuilder', () => {
             const afterBreak = [3, 3, 4, 4, 5, 5]
 
             const { sets, remainder } = optimalAddBookBetter(baseSets, afterBreak)
-
-            console.log(sets);
-            console.log(remainder);
         })
     })
 
