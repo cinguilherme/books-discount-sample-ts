@@ -1,3 +1,6 @@
+import { optimalAddBookBetter } from "./setBuilder"
+import { breakerSequences, discoutSwitch, groupRepeats } from "./utils"
+
 export type Groups = Array<Set<number>>
 
 type BetterDiscont = (books: Array<number>) => number
@@ -27,11 +30,14 @@ export interface Base {
 const bookPrice = 800
 
 export const betterDiscontsForPurchase: BetterDiscont = (books) => {
+    const priceReducer = (acc: number, cur: DiscountedWithFinalPrice) => acc += cur.finalPrice
+    const sum = (acc: number, cur: number) => acc += cur
+
     return [books].flatMap(fromListToMapOfFrequency)
         .flatMap(constructGroups)
         .map(calculateTotalDiscount)
-        .flatMap(d => d.reduce((acc, cur) => acc += cur.finalPrice, 0))
-        .reduce((acc, cur) => acc += cur, 0)
+        .flatMap(d => d.reduce(priceReducer, 0))
+        .reduce(sum, 0)
 }
 
 export const fromListToMapOfFrequency: TrasformArrayToMap = (books) => {
@@ -71,92 +77,6 @@ export const buildGroupsWithRoundTrip: GroupBuilder = (base) => {
     return group
 }
 
-export const optimalAddBookBetter = (sets: Array<Set<number>>, remainder: Array<number>) => {
-    let inserted = false
-
-    const bestCandidate = getBestPossibleCandidateSetToAddNewBook(sets)
-    for (var i = 0; i < remainder.length; i++) {
-        if (!sets[bestCandidate.index].has(remainder[i])) {
-            sets[bestCandidate.index].add(remainder[i])
-            delete remainder[i]
-            remainder = remainder.filter(v => v != undefined)
-            inserted = true
-            break
-        }
-    }
-
-    return { sets: sets, remainder: remainder, inserted: inserted }
-}
-
-const getBestPossibleCandidateSetToAddNewBook = (sets: Array<Set<number>>) => {
-    const diffHigh: number[] = buildDiscountDiffArray(sets)
-    const highestDiffValM = Math.max(...diffHigh)
-    const indexesX = getIndexesWithHighVal(diffHigh, highestDiffValM)
-    return getBestCandidate(indexesX, sets)
-}
-
-const buildDiscountDiffArray = (subSets: Array<Set<number>>) => {
-    const currDiscounts = subSets.map(s => discoutSwitch(s.size))
-    const nextDiscounts = subSets.map(s => discoutSwitch(s.size + 1))
-    const diff: Array<number> = []
-    for (var i = 0; i < currDiscounts.length; i++) {
-        diff.push(nextDiscounts[i] - currDiscounts[i])
-    }
-    return diff
-}
-
-const getIndexesWithHighVal: (diff: Array<number>, highval: number) => Array<number> = (diff, highval) => {
-    const indexes = []
-    for (var i = 0; i < diff.length; i++) {
-        if (diff[i] == highval) {
-            indexes.push(i)
-        }
-    }
-    return indexes
-}
-const notAlreadyInSet = (set: Set<number>, book: number) => !set.has(book)
-const alreadyInSet = (set: Set<number>, book: number) => set.has(book)
-
-const getBestCandidate = (indexes: Array<any>, subSets: Array<Set<number>>) => {
-    const indexWithSize: Array<any> = indexes.map(i => {
-        return {
-            index: i,
-            size: subSets[i].size
-        }
-    })
-
-    let best = {
-        index: -1,
-        size: 1000
-    }
-
-    indexWithSize.forEach(c => {
-        if (c.size == 3 || c.size < best.size) {
-            best = c
-        }
-    })
-
-    return best
-}
-
-type OptimalAddBook = (sets: Array<Set<number>>, newBook: number) => Array<Set<number>>
-export const optimalAddBookToBestSetForBestDiscount: OptimalAddBook = (sets, newBook) => {
-
-    const notToTouch = sets.filter(set => alreadyInSet(set, newBook))
-    const subSets = sets.filter(set => notAlreadyInSet(set, newBook))
-
-    const diff: number[] = buildDiscountDiffArray(subSets)
-
-    const highestDiffVal = Math.max(...diff)
-    const indexes = getIndexesWithHighVal(diff, highestDiffVal)
-
-    const bestCandidate = getBestCandidate(indexes, subSets)
-
-    subSets[bestCandidate.index].add(newBook)
-
-    return [...notToTouch, ...subSets]
-}
-
 export const makeBase: (high: number, map: any) => Base = (high, map) => {
     const basex = makeBaseArr(high, map)
     const remainderx = makeRemainder(high, map)
@@ -188,17 +108,6 @@ export const getHigherFrequencyKey = (map: any) => {
     return key
 }
 
-export const discoutSwitch = (count: number) => {
-    switch (count) {
-        case 1: return 0
-        case 2: return 0.05
-        case 3: return 0.10
-        case 4: return 0.20
-        case 5: return 0.25
-        default: return 0.00
-    }
-}
-
 const calculateDiscountsForGroup: DiscountCalculator = (group) => {
     return group.map(set => { return { set: set, discount: discoutSwitch(set.size) } })
 }
@@ -214,28 +123,4 @@ const calculateTotalDiscount: TotalDiscount = (group) => {
                 finalPrice: price - (price * discount)
             }
         })
-}
-
-export const breakerSequences = (arr: Array<number>) => {
-    const sets: Array<Set<number>> = []
-    arr.forEach(n => {
-        const candidates = sets.filter(s => !s.has(n))
-        if (candidates.length == 0) {
-            sets.push(new Set([n]))
-        } else {
-            candidates[0].add(n)
-        }
-    })
-    return sets
-}
-
-type GroupRepeats = (arr: Array<number>) => Array<Array<number>>
-export const groupRepeats: GroupRepeats = (arr) => {
-    const list: Array<Array<number>> = [[], [], [], [], []]
-
-    for (var i = 0; i < arr.length; i++) {
-        list[arr[i] - 1].push(arr[i])
-    }
-
-    return list
 }
